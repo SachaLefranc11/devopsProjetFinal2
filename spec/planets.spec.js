@@ -23,8 +23,18 @@ describe('Planet.validateData', () => {
     const Planet = require('../models/Planet');
 
     const result = Planet.validateData({ name: '', size_km: 12742 });
+
+    expect(result).toBe(false);
+  });
+
+  it('should return false if size_km is not a number', () => {
+
+    const Planet = require('../models/Planet');
+
+    const result = Planet.validateData({ name: 'Earth', size_km: 'large' });
     
     expect(result).toBe(false);
   });
+  
   
 });
