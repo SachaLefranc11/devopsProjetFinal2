@@ -4,4 +4,11 @@ describe('Planet.validateData', () => {
     const result = Planet.validateData({ name: 'Earth', size_km: 12742 });
     expect(result).toBe(true);
   });
+
+  it('should return false for negative size', () => {
+    const Planet = require('../models/Planet');
+    const result = Planet.validateData({ name: 'Earth', size_km: -1 });
+    expect(result).toBe(false);
+  });
+  
 });

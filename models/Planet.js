@@ -1,5 +1,7 @@
 const db = require('../models/db_conf');
 
 module.exports.validateData = (data) => {
-  return true; // Retourne toujours true, minimal pour ce test
+  if (data.size_km <= 0) return false; // Vérifie la taille minimale
+  return true;
 };
+
