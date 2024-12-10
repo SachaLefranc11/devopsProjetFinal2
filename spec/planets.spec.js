@@ -106,4 +106,5 @@ describe('Planet.add', () => {
     expect(mockDb.prepare().get).toHaveBeenCalledWith('Mars');
     // Aucun appel à run attendu puisque la planète existe déjà
   });
+  
 });
