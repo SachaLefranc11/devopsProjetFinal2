@@ -8,6 +8,17 @@ module.exports.validateData = (data) => {
 module.exports.findByName = (name) => {
   return db.prepare("SELECT * FROM planets WHERE name = ?").get(name);
 };
+module.exports.add = (data) => {
+  const existingPlanet = db.prepare("SELECT * FROM planets WHERE name = ?").get(data.name);
+  if (existingPlanet) return false;
+
+  db.prepare(`
+    INSERT INTO planets (name, size_km, atmosphere, type, distance_from_sun_km, image)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(data.name, data.size_km, data.atmosphere, data.type, data.distance_from_sun_km, data.image || null);
+
+  return true;
+};
 
 
 
