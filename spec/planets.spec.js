@@ -84,4 +84,26 @@ describe('Planet.add', () => {
       'Pluto', 2376, undefined, undefined, undefined, null
     ); // Vérification des arguments utilisés dans la requête d'insertion
   });
+  it('should return false if the planet already exists', () => {
+    // Mock de la fonction db.prepare().get()
+    const mockDb = {
+      prepare: jasmine.createSpy('prepare').and.returnValue({
+        get: jasmine.createSpy('get').and.callFake(() => ({ name: 'Mars' })), // Simule une planète existante
+      }),
+    };
+
+    // Remplacer la configuration de la base de données par le mock
+    spyOn(require('../models/db_conf'), 'prepare').and.callFake(mockDb.prepare);
+
+    // Appeler la méthode et vérifier le résultat
+    const result = Planet.add({ name: 'Mars', size_km: 6794 });
+    expect(result).toBe(false);
+
+    // Vérifier que les espions ont été appelés avec les bons arguments
+    expect(mockDb.prepare).toHaveBeenCalledWith(
+      "SELECT * FROM planets WHERE name = ?"
+    );
+    expect(mockDb.prepare().get).toHaveBeenCalledWith('Mars');
+    // Aucun appel à run attendu puisque la planète existe déjà
+  });
 });
