@@ -160,4 +160,32 @@ describe('POST /planets/add', () => {
     expect(res.status).toHaveBeenCalledWith(409);
     expect(res.status().send).toHaveBeenCalledWith('Planet already exists');
   });
+  it('should respond with 400 for invalid data', () => {
+    const Planet = require('../models/Planet');
+  
+    // Simuler une réponse invalide de validateData
+    spyOn(Planet, 'validateData').and.returnValue(false);
+  
+    // Simuler req et res
+    const req = {
+      body: { name: '', size_km: -1 }, // Données invalides
+    };
+  
+    const res = {
+      status: jasmine.createSpy('status').and.returnValue({
+        send: jasmine.createSpy('send'),
+      }),
+    };
+  
+    // Appeler la fonction de route
+    const router = require('../routes/planets');
+    router.handle({ method: 'POST', url: '/planets/add', ...req }, res, () => {});
+  
+    // Vérifier que validateData a été appelée
+    expect(Planet.validateData).toHaveBeenCalledWith({ name: '', size_km: -1 });
+  
+    // Vérifier la réponse HTTP
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.status().send).toHaveBeenCalledWith('Invalid data');
+  });
 });
