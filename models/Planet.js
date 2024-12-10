@@ -5,5 +5,9 @@ module.exports.validateData = (data) => {
   return true;
 };
 
+module.exports.findByName = (name) => {
+  return db.prepare("SELECT * FROM planets WHERE name = ?").get(name);
+};
+
 
 
