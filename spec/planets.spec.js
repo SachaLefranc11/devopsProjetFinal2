@@ -1,5 +1,7 @@
 const Planet = require('../models/Planet');
 const dbConf = require('../models/db_conf');
+const express = require('express');
+const router = require('../routes/planets');
 
 describe('Planet.validateData', () => {
   it('should return true for valid data', () => {
@@ -106,5 +108,56 @@ describe('Planet.add', () => {
     expect(mockDb.prepare().get).toHaveBeenCalledWith('Mars');
     // Aucun appel à run attendu puisque la planète existe déjà
   });
-  
+
+});
+
+
+describe('POST /planets/add', () => {
+  let req, res;
+
+  beforeEach(() => {
+    // Simuler les objets req et res
+    req = {
+      body: { name: 'Venus', size_km: 12104 }, // Les données envoyées dans la requête
+    };
+
+    res = {
+      status: jasmine.createSpy('status').and.returnValue({
+        send: jasmine.createSpy('send'),
+      }),
+    };
+
+    // Créer un espion sur la méthode `add` de Planet
+    spyOn(Planet, 'add');
+  });
+
+  it('should call add and respond with success', () => {
+    // Configurer l'espion pour qu'il retourne `true`
+    Planet.add.and.returnValue(true);
+
+    // Appeler directement la fonction de route
+    router.handle({ method: 'POST', url: '/planets/add', ...req }, res, () => {});
+
+    // Vérifier que Planet.add a été appelé avec les bonnes données
+    expect(Planet.add).toHaveBeenCalledWith({ name: 'Venus', size_km: 12104 });
+
+    // Vérifier la réponse HTTP
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.status().send).toHaveBeenCalledWith('Planet added');
+  });
+
+  it('should respond with conflict if the planet already exists', () => {
+    // Configurer l'espion pour qu'il retourne `false`
+    Planet.add.and.returnValue(false);
+
+    // Appeler directement la fonction de route
+    router.handle({ method: 'POST', url: '/planets/add', ...req }, res, () => {});
+
+    // Vérifier que Planet.add a été appelé avec les bonnes données
+    expect(Planet.add).toHaveBeenCalledWith({ name: 'Venus', size_km: 12104 });
+
+    // Vérifier la réponse HTTP
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.status().send).toHaveBeenCalledWith('Planet already exists');
+  });
 });
