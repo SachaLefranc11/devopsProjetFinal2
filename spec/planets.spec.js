@@ -61,6 +61,31 @@ describe('Planet.findByName', () => {
     expect(mockDb.prepare).toHaveBeenCalledWith("SELECT * FROM planets WHERE name = ?");
     expect(mockDb.prepare().get).toHaveBeenCalledWith('Mars');
   });
+  const Planet = require('../models/Planet');
+
+describe('Planet.findByName', () => {
+  it('should return null if the planet does not exist', () => {
+    // Mock de la fonction db.prepare().get()
+    const mockDb = {
+      prepare: jasmine.createSpy('prepare').and.returnValue({
+        get: jasmine.createSpy('get').and.callFake((name) => null), // Toujours retourne null
+      }),
+    };
+
+    // Remplacer la configuration de la base de données par le mock
+    spyOn(require('../models/db_conf'), 'prepare').and.callFake(mockDb.prepare);
+
+    // Appeler la méthode et vérifier le résultat
+    const result = Planet.findByName('Pluto');
+    expect(result).toBeNull();
+
+    // Vérifier que les espions ont été appelés avec les bons arguments
+    expect(mockDb.prepare).toHaveBeenCalledWith("SELECT * FROM planets WHERE name = ?");
+    expect(mockDb.prepare().get).toHaveBeenCalledWith('Pluto');
+  });
+});
+
+  
 });
 
 
