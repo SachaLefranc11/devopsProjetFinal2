@@ -189,3 +189,47 @@ describe('POST /planets/add', () => {
     expect(res.status().send).toHaveBeenCalledWith('Invalid data');
   });
 });
+
+describe('Planet.list', () => {
+  it('should return a list of all planets', () => {
+    const mockDb = {
+      prepare: jasmine.createSpy('prepare').and.returnValue({
+        all: jasmine.createSpy('all').and.returnValue([
+          { name: 'Earth', size_km: 12742 },
+          { name: 'Mars', size_km: 6794 },
+        ]),
+      }),
+    };
+
+    spyOn(require('../models/db_conf'), 'prepare').and.callFake(mockDb.prepare);
+
+    const Planet = require('../models/Planet');
+    const result = Planet.list();
+
+    expect(result).toEqual([
+      { name: 'Earth', size_km: 12742 },
+      { name: 'Mars', size_km: 6794 },
+    ]);
+
+    expect(mockDb.prepare).toHaveBeenCalledWith("SELECT * FROM planets");
+    expect(mockDb.prepare().all).toHaveBeenCalled();
+  });
+
+  it('should return an empty array if no planets are found', () => {
+    const mockDb = {
+      prepare: jasmine.createSpy('prepare').and.returnValue({
+        all: jasmine.createSpy('all').and.returnValue([]),
+      }),
+    };
+
+    spyOn(require('../models/db_conf'), 'prepare').and.callFake(mockDb.prepare);
+
+    const Planet = require('../models/Planet');
+    const result = Planet.list();
+
+    expect(result).toEqual([]);
+
+    expect(mockDb.prepare).toHaveBeenCalledWith("SELECT * FROM planets");
+    expect(mockDb.prepare().all).toHaveBeenCalled();
+  });
+});
